@@ -113,14 +113,15 @@ if st.button("대량 메일 전송"):
             sent_count = 0
             for idx, row in enumerate(data, start=2):
                 if len(row) < 2:
-                    st.warning(f"{idx}행에 이름 또는 이메일 주소가 누락되었습니다: {row}")
-                    continue
-                
-                recipient_name = row[0].strip()  # A열의 이름 (여백 제거)
-                recipient_email = row[1].strip()  # B열의 이메일 (여백 제거)
+                    st.warning(f"{idx}행에 이메일 주소만 존재하고 이름이 없습니다: {row}")
+                    recipient_name = "고객님"  # 이름이 없을 경우 기본값으로 '고객님' 사용
+                    recipient_email = row[0].strip()  # 이메일 주소만 있는 경우
+                else:
+                    recipient_name = row[0].strip()  # A열의 이름 (여백 제거)
+                    recipient_email = row[1].strip()  # B열의 이메일 (여백 제거)
 
-                if not recipient_name or not recipient_email:
-                    st.warning(f"{idx}행에 올바르지 않은 이름 또는 이메일 주소가 있습니다: {row}")
+                if not recipient_email:
+                    st.warning(f"{idx}행에 올바르지 않은 이메일 주소가 있습니다: {row}")
                     continue
 
                 if sent_count >= daily_limit:
