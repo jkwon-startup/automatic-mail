@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from email.mime.image import MIMEImage
+import imghdr
 
 # 구글 스프레드시트 API를 통해 시트 데이터 가져오기
 def get_sheet_data(api_key, spreadsheet_id, sheet_range):
@@ -27,13 +28,19 @@ def send_email(smtp_user, smtp_password, recipient, subject, body, image=None, a
         msg['To'] = recipient
         msg['Subject'] = subject
 
-        # 이메일 본문
-        msg.attach(MIMEText(body, 'html'))
+        # 이메일 본문에서 줄 바꿈 처리를 위해 \n을 <br>로 변환
+        body_with_line_breaks = body.replace('\n', '<br>')
+        msg.attach(MIMEText(body_with_line_breaks, 'html'))
 
         # 이미지 첨부 (본문 삽입)
         if image is not None:
             img_data = image.read()
-            image_mime = MIMEImage(img_data)
+            # 이미지 형식 감지 및 설정 (필요 시 기본값으로 설정)
+            image_type = imghdr.what(None, img_data)
+            if not image_type:
+                image_type = 'jpeg'  # 기본값으로 jpeg 사용
+
+            image_mime = MIMEImage(img_data, _subtype=image_type)
             image_mime.add_header('Content-ID', '<image1>')
             msg.attach(image_mime)
 
@@ -86,7 +93,7 @@ attached_file = st.file_uploader("파일 첨부 (옵션)", type=['txt', 'pdf', '
 # 미리보기
 if st.button("미리보기"):
     st.markdown(f"### 제목: {subject}")
-    st.markdown(f"### 내용: \n {body}")
+    st.markdown(f"### 내용: \n {body.replace('\n', '<br>')}")
     if uploaded_image:
         st.image(uploaded_image)
     if attached_file:
@@ -112,7 +119,7 @@ if st.button("대량 메일 전송"):
                 recipient = row[0]  # 첫 번째 열이 이메일 주소라고 가정
 
                 # 이미지가 있을 경우 이메일 본문에 삽입
-                email_body = body
+                email_body = body.replace('\n', '<br>')  # 줄 바꿈 변환
                 if uploaded_image is not None:
                     email_body += '<br><img src="cid:image1">'
 
