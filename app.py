@@ -146,3 +146,4 @@ if st.button("대량 메일 전송"):
             
             st.sidebar.subheader("전송 상태")
             st.sidebar.text(f"오늘 전송된 이메일 수: {sent_count}")
+
