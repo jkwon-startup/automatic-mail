@@ -91,7 +91,8 @@ if st.button("미리보기"):
     if "{이름}" not in body_template:
         st.warning("미리보기에서는 {이름} 변수를 사용해야만 이름을 확인할 수 있습니다.")
     st.markdown(f"### 제목: {subject}")
-    st.markdown(f"### 내용 (이름 적용): \n {body_template.replace('{이름}', '홍길동')}")
+    # 줄바꿈을 반영한 미리보기
+    st.markdown(f"### 내용 (이름 적용): \n {body_template.replace('{이름}', '홍길동').replace('\n', '<br>')}")
     if uploaded_image:
         st.image(uploaded_image)
     if attached_file:
@@ -126,8 +127,8 @@ if st.button("대량 메일 전송"):
                     st.warning("일일 전송 제한에 도달했습니다.")
                     break
 
-                # {이름} 변수를 사용하여 동적으로 본문에 이름을 추가
-                email_body = body_template.replace("{이름}", recipient_name)
+                # {이름} 변수를 사용하여 동적으로 본문에 이름을 추가하고 줄바꿈을 처리
+                email_body = body_template.replace("{이름}", recipient_name).replace("\n", "<br>")
 
                 # 이미지가 있을 경우 이메일 본문에 삽입
                 if uploaded_image is not None:
