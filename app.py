@@ -27,9 +27,8 @@ def send_email(smtp_user, smtp_password, recipient, subject, body, image=None, a
         msg['To'] = recipient
         msg['Subject'] = subject
 
-        # 이메일 본문에서 줄 바꿈 처리를 위해 \n을 <br>로 변환
-        body_with_line_breaks = body.replace('\n', '<br>')
-        msg.attach(MIMEText(body_with_line_breaks, 'html'))
+        # 이메일 본문
+        msg.attach(MIMEText(body, 'html'))
 
         # 이미지 첨부 (본문 삽입)
         if image is not None:
@@ -87,7 +86,7 @@ attached_file = st.file_uploader("파일 첨부 (옵션)", type=['txt', 'pdf', '
 # 미리보기
 if st.button("미리보기"):
     st.markdown(f"### 제목: {subject}")
-    st.markdown(f"### 내용: \n {body.replace('\n', '<br>')}")
+    st.markdown(f"### 내용: \n {body}")
     if uploaded_image:
         st.image(uploaded_image)
     if attached_file:
@@ -113,7 +112,7 @@ if st.button("대량 메일 전송"):
                 recipient = row[0]  # 첫 번째 열이 이메일 주소라고 가정
 
                 # 이미지가 있을 경우 이메일 본문에 삽입
-                email_body = body.replace('\n', '<br>')  # 줄 바꿈 변환
+                email_body = body
                 if uploaded_image is not None:
                     email_body += '<br><img src="cid:image1">'
 
