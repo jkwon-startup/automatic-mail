@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from email.mime.image import MIMEImage
-import imghdr
+import mimetypes
 
 # 구글 스프레드시트 API를 통해 시트 데이터 가져오기
 def get_sheet_data(api_key, spreadsheet_id, sheet_range):
@@ -34,13 +34,12 @@ def send_email(smtp_user, smtp_password, recipient, subject, body, image=None, a
 
         # 이미지 첨부 (본문 삽입)
         if image is not None:
+            mime_type, _ = mimetypes.guess_type(image.name)
+            if mime_type is None:
+                mime_type = "image/png"  # 기본값으로 PNG 사용
+            mime_main, mime_sub = mime_type.split('/')
             img_data = image.read()
-            # 이미지 형식 감지 및 설정 (필요 시 기본값으로 설정)
-            image_type = imghdr.what(None, img_data)
-            if not image_type:
-                image_type = 'jpeg'  # 기본값으로 jpeg 사용
-
-            image_mime = MIMEImage(img_data, _subtype=image_type)
+            image_mime = MIMEImage(img_data, _subtype=mime_sub)
             image_mime.add_header('Content-ID', '<image1>')
             msg.attach(image_mime)
 
@@ -93,7 +92,7 @@ attached_file = st.file_uploader("파일 첨부 (옵션)", type=['txt', 'pdf', '
 # 미리보기
 if st.button("미리보기"):
     st.markdown(f"### 제목: {subject}")
-    st.markdown(f"### 내용: \n {body.replace('\n', '<br>')}")
+    st.markdown(f"### 내용: \n {body.replace('\n', '<br>')}", unsafe_allow_html=True)
     if uploaded_image:
         st.image(uploaded_image)
     if attached_file:
